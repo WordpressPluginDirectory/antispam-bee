@@ -1,15 +1,15 @@
 # Antispam Bee #
 * Contributors:      pluginkollektiv, websupporter, schlessera, zodiac1978, swissspidy, krafit, kau-boy, florianbrinkmann, pfefferle
-* Tags:              anti-spam, antispam, block spam, comment, comments, comment spam, pingback, spam, spam filter, trackback, GDPR
+* Tags:              anti-spam, antispam, comments, spam filter, spam protection
 * Donate link:       https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TD4AMD2D8EMZW
-* Requires at least: 4.5
-* Tested up to:      6.5
+* Requires at least: 4.6
+* Tested up to:      6.7
 * Requires PHP:      5.2
-* Stable tag:        2.11.6
+* Stable tag:        2.11.7
 * License:           GPLv2 or later
 * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
-Antispam plugin with a sophisticated tool set for effective day to day comment and trackback spam-fighting. Build with data protection and privacy in mind.
+Sophisticated antispam plugin for effective daily comment and trackback spam-fighting. Built with data protection and privacy in mind.
 
 ## Description ##
 Say Goodbye to comment spam on your WordPress blog or website. *Antispam Bee* blocks spam comments and trackbacks effectively, without captchas and without sending personal information to third party services. It is free of charge, ad-free and 100% GDPR compliant.
@@ -65,7 +65,7 @@ Antispam Bee works best with default WordPress comments. It does not help to pro
 Antispam Bee works best with default WordPress comments. It is not compatible with Jetpack, wpDiscuz or Disqus Comments as those plugins load a new comment form within an iframe. Thus Antispam Bee can not access the comment form directly.
 
 ### Does Antispam Bee work with AJAX comment plugins or similar theme features?
-Whether Antispam Bee works with a comment form submitted via AJAX depends on how the AJAX request is made. If the request goes to the file that usually also receives the comments, Antispam Bee could work with it out of the box (the [WP Ajaxify Comments](https://wordpress.org/plugins/wp-ajaxify-comments/) plugin does this, for example). 
+Whether Antispam Bee works with a comment form submitted via AJAX depends on how the AJAX request is made. If the request goes to the file that usually also receives the comments, Antispam Bee could work with it out of the box (the [WP Ajaxify Comments](https://wordpress.org/plugins/wp-ajaxify-comments/) plugin does this, for example).
 
 If the comments are sent to the `admin-ajax.php`, the `antispam_bee_disallow_ajax_calls` filter must be used to run ASB for requests to that file as well. If the script does not send all form data to the file, but only some selected ones, further customization is probably necessary, as [exemplified in this post by Torsten Landsiedel](https://torstenlandsiedel.de/2020/10/04/ajaxifizierte-kommentare-und-antispam-bee/) (in German).
 
@@ -95,6 +95,11 @@ A complete documentation is available on [pluginkollektiv.org](https://antispamb
 
 ## Changelog ##
 
+### 2.11.7 ###
+  * Tweak: Use SCRIPT_NAME instead of REQUEST_URI to check path
+  * Fix: Remove `add_reasons_to_defaults()` from general initialization for better WordPress 6.7 compatibility
+  * Maintenance: Tested up to WordPress 6.7
+
 ### 2.11.6 ###
   * Fix: Delete missed out option on uninstall (Thanks @okvee!)
   * Tweak: Minor i18n improvements (Thanks Pedro!)
@@ -103,10 +108,12 @@ A complete documentation is available on [pluginkollektiv.org](https://antispamb
 
 ### 2.11.5 ###
 IMPORTANT: If you use the country check and are behind a proxy or similar, you need to use the `antispam_bee_trusted_ip` filter to get the correct IP from a header like `HTTP_X_FORWARDED` (don’t return an empty value here, otherwise all comments are marked as spam).
+
   * Fix: Usage of core filter `pre_comment_user_ip` breaks ASB if the IP address is removed for GDPR compliance
 
 ### 2.11.4 ###
 IMPORTANT: If you use the country check and are behind a proxy or similar, you need to use the `pre_comment_user_ip` filter to get the correct IP from a header like `HTTP_X_FORWARDED`.
+
   * Fix: Read client IP for country check from `REMOTE_ADDR` only (filterable via `pre_comment_user_ip`)
   * Fix: No spam reason in spam notification email, and related PHP warning
   * Fix: Remove outdated info from readme

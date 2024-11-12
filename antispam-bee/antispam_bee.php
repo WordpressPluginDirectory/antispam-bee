@@ -9,7 +9,7 @@
  * Domain Path: /lang
  * License:     GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
- * Version:     2.11.6
+ * Version:     2.11.7
  *
  * @package Antispam Bee
  **/
@@ -151,10 +151,13 @@ class Antispam_Bee {
 
 		self::_init_internal_vars();
 
-		if ( self::_current_page( 'dashboard' ) || self::_current_page( 'plugins' ) || self::_current_page( 'options' ) || self::_current_page( 'edit-comments' ) || self::_current_page( 'admin-post' ) ) {
-			self::load_plugin_lang();
-			self::add_reasons_to_defaults();
-		}
+		add_action(
+			'init',
+			array(
+				__CLASS__,
+				'add_reasons_to_defaults',
+			)
+		);
 
 		if ( defined( 'DOING_CRON' ) ) {
 			add_action(
@@ -478,7 +481,7 @@ class Antispam_Bee {
 	 *
 	 * @since 2.11.2
 	 */
-	private static function add_reasons_to_defaults() {
+	public static function add_reasons_to_defaults() {
 		self::$defaults['reasons'] = array(
 			'css'           => esc_attr__( 'Honeypot', 'antispam-bee' ),
 			'time'          => esc_attr__( 'Comment time', 'antispam-bee' ),
@@ -562,19 +565,6 @@ class Antispam_Bee {
 				return false;
 		}
 		// phpcs:enable WordPress.CSRF.NonceVerification.NoNonceVerification
-	}
-
-
-	/**
-	 * Integration of the localization file
-	 *
-	 * @since  0.1
-	 * @since  2.4
-	 */
-	public static function load_plugin_lang() {
-		load_plugin_textdomain(
-			'antispam-bee'
-		);
 	}
 
 
@@ -1127,6 +1117,7 @@ class Antispam_Bee {
 	 *
 	 * @since  0.1
 	 * @since  2.6.3
+	 * @since  2.11.7 Switching from REQUEST_URI to SCRIPT_NAME for the check
 	 */
 	public static function precheck_incoming_request() {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
@@ -1134,7 +1125,7 @@ class Antispam_Bee {
 			return;
 		}
 
-		$request_uri  = self::get_key( $_SERVER, 'REQUEST_URI' );
+		$request_uri  = self::get_key( $_SERVER, 'SCRIPT_NAME' );
 		$request_path = self::parse_url( $request_uri, 'path' );
 
 		if ( strpos( $request_path, 'wp-comments-post.php' ) === false ) {
@@ -1161,6 +1152,7 @@ class Antispam_Bee {
 	 * @since  0.1
 	 * @since  2.6.3
 	 * @since  2.10.0 Refactoring of code if pings are allowed and if is ping
+	 * @since  2.11.7 Switching from REQUEST_URI to SCRIPT_NAME for the check
 	 *
 	 * @param   array $comment  Untreated comment.
 	 * @return  array $comment  Treated comment.
@@ -1168,7 +1160,7 @@ class Antispam_Bee {
 	public static function handle_incoming_request( $comment ) {
 		$comment['comment_author_IP'] = self::get_client_ip();
 
-		$request_uri  = self::get_key( $_SERVER, 'REQUEST_URI' );
+		$request_uri  = self::get_key( $_SERVER, 'SCRIPT_NAME' );
 		$request_path = self::parse_url( $request_uri, 'path' );
 
 		if ( empty( $request_path ) ) {
@@ -2552,9 +2544,6 @@ class Antispam_Bee {
 		if ( ! $post ) {
 			return $id;
 		}
-
-		self::load_plugin_lang();
-		self::add_reasons_to_defaults();
 
 		$subject = sprintf(
 			'[%s] %s',
